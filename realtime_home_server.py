@@ -224,7 +224,17 @@ def main():
     parser = argparse.ArgumentParser(description="Serve a live PCL Minecraft/Miku homepage")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--once", action="store_true", help="Generate a static Custom.xaml and exit")
+    parser.add_argument("--output", default="Custom.xaml", help="Output path used with --once")
     args = parser.parse_args()
+    if args.once:
+        payload = live_xaml()
+        with open(args.output, "wb") as output_file:
+            output_file.write(payload)
+        with open(args.output + ".ini", "w", encoding="ascii") as version_file:
+            version_file.write(hashlib.sha256(payload).hexdigest()[:16])
+        print(f"Generated {args.output}")
+        return
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"PCL realtime homepage: http://{args.host}:{args.port}/Custom.xaml")
     print("Press Ctrl+C to stop.")
