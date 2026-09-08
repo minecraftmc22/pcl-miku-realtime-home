@@ -128,20 +128,51 @@ def xaml_text(data):
         <ColumnDefinition Width="1.05*" />
         <ColumnDefinition Width="0.95*" />
     </Grid.ColumnDefinitions>
-    <local:MyCard Grid.Column="0" Title="MINECRAFT API · 当前接口状态" Margin="0,0,8,15">
+    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+        <local:MyCard Title="QUICK START · 快速启动" Margin="0,0,0,15" CanSwap="True" IsSwapped="False">
+            <StackPanel Margin="25,40,23,18">
+                <TextBlock Margin="0,0,0,12" Foreground="{{DynamicResource ColorBrush2}}" Text="选择一个入口，让今天的节拍先从这里响起。" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <local:MyButton Grid.Column="0" Margin="0,0,10,0" Height="38" ColorType="Highlight" Text="启动游戏" EventType="启动游戏" EventData="\\current" />
+                    <local:MyButton Grid.Column="1" Height="38" Text="内存优化" EventType="内存优化" />
+                </Grid>
+                <local:MyButton Margin="0,10,0,0" Height="38" Text="版本管理" EventType="切换页面" EventData="VersionSelect|Default" />
+            </StackPanel>
+        </local:MyCard>
+        <local:MyCard Title="MY WORLDS · 最近使用的实例" Margin="0,0,0,15" CanSwap="True" IsSwapped="False">
+            <StackPanel Margin="25,40,23,16">
+                <local:MyListItem Margin="-5,0,-5,8" Logo="pack://application:,,,/images/Blocks/Grass.png" Title="MIKU SURVIVAL · 当前实例" Info="点击启动当前选中的 Minecraft 版本" EventType="启动游戏" EventData="\\current" Type="Clickable" />
+                <local:MyListItem Margin="-5,0,-5,8" Logo="pack://application:,,,/images/Blocks/CommandBlock.png" Title="NEON CREATIVE · 创造测试" Info="建筑、红石与材质测试专用入口" EventType="切换页面" EventData="VersionSelect|Default" Type="Clickable" />
+            </StackPanel>
+        </local:MyCard>
+        <local:MyCard Title="MIKU STATUS · 当前状态" Margin="0,0,0,15" CanSwap="True" IsSwapped="False">
+            <StackPanel Margin="25,40,23,18">
+                <local:MyHint Margin="0,0,0,10" Theme="Blue" Text="PCL HOME / REALTIME DATA READY" />
+                <local:MyHint Margin="0,0,0,10" Theme="Yellow" Text="接口状态每 30 分钟自动更新，也可以手动刷新主页。" />
+                <TextBlock FontSize="12" Foreground="{{DynamicResource ColorBrush2}}" Text="01 ONLINE    ·    MIKU BLUE    ·    WIDE MODE" />
+            </StackPanel>
+        </local:MyCard>
+    </StackPanel>
+    <StackPanel Grid.Column="1" Margin="8,0,0,0">
+    <local:MyCard Title="MINECRAFT API · 当前接口状态" Margin="0,0,0,15">
         <StackPanel Margin="25,40,23,18">
             <TextBlock Margin="0,0,0,10" Foreground="{{DynamicResource ColorBrush2}}" Text="最后更新：{esc(data["updated"])}" />
             {''.join(api_items)}
             <local:MyHint Margin="0,8,0,0" Theme="Blue" Text="状态来自 Mojang 官方接口；点击上方按钮即可重新检测。" />
         </StackPanel>
     </local:MyCard>
-    <local:MyCard Grid.Column="1" Title="NEWS · Minecraft 最新新闻" Margin="8,0,0,15">
+    <local:MyCard Title="NEWS · Minecraft 最新新闻" Margin="0,0,0,15">
         <StackPanel Margin="25,40,23,18">
             <TextBlock Margin="0,0,0,10" Foreground="{{DynamicResource ColorBrush2}}" Text="来自 Minecraft 官方新闻页 · {esc(data["updated"])}" />
             {''.join(news_items)}
             <local:MyTextButton Margin="0,8,0,0" HorizontalAlignment="Center" Text="刷新新闻" EventType="刷新主页" />
         </StackPanel>
     </local:MyCard>
+    </StackPanel>
 </Grid>
 
 <TextBlock Margin="0,5,0,18" HorizontalAlignment="Center" FontSize="11" Foreground="#00A7B5" Text="♪ 未来的声音，正在方块世界里继续播放。 ♪" />
@@ -193,17 +224,7 @@ def main():
     parser = argparse.ArgumentParser(description="Serve a live PCL Minecraft/Miku homepage")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
-    parser.add_argument("--once", action="store_true", help="Generate a static Custom.xaml and exit")
-    parser.add_argument("--output", default="Custom.xaml", help="Output path used with --once")
     args = parser.parse_args()
-    if args.once:
-        payload = live_xaml()
-        with open(args.output, "wb") as output_file:
-            output_file.write(payload)
-        with open(args.output + ".ini", "w", encoding="ascii") as version_file:
-            version_file.write(hashlib.sha256(payload).hexdigest()[:16])
-        print(f"Generated {args.output}")
-        return
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"PCL realtime homepage: http://{args.host}:{args.port}/Custom.xaml")
     print("Press Ctrl+C to stop.")
